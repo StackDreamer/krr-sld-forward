@@ -11,23 +11,25 @@ class Symbol:
     name: str
 
     def __eq__(self, other: Symbol) -> bool:
+        if not isinstance(other, Symbol):
+            return False
         return self.name == other.name
-    
+
     def __or__(self, other: Symbol) -> Or:
         return Or(self, other)
 
     def __and__(self, other: Symbol) -> And:
         return And(self, other)
-    
+
     def __invert__(self) -> Not:
         return Not(self)
-    
+
     def __rshift__(self, other: Symbol) -> Implies:
         return Implies(self, other)
 
     def __lshift__(self, other: Symbol) -> Implies:
         return Implies(other, self)
-    
+
     def to_cnf(self):
         return self
 
@@ -88,7 +90,7 @@ class Implies:
 
     def __eq__(self, other: Implies) -> bool:
         return self.premise == other.premise and self.conclusion == other.conclusion
-    
+
     def to_cnf(self):
         return Or(Not(self.premise), self.conclusion).to_cnf()
 
@@ -119,7 +121,7 @@ def forward_chaining(knowledge_base: List[Union[Symbol, Implies, And, Or, Not]])
 def is_solved(solved: List[Union[Symbol, Implies, And, Or, Not]], query: Union[Symbol, Or, Not]) -> bool:
     if isinstance(query, Symbol):
         return query in solved
-    
+
     if isinstance(query, Not):
         return query.symbol in solved
 
