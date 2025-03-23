@@ -1,5 +1,6 @@
-from model import Symbol, Or, And, Not, Implies
+from hadeh import Symbol, Or, And, Not, Implies
 from typing import List, Union
+from parser import parse
 
 def forward_chaining(knowledge_base: List[Union[Symbol, Implies, And, Or, Not]]) -> List[Symbol]:
     inferred = set()
@@ -38,8 +39,8 @@ def sld_resolution(knowledge_base: List[Union[Symbol, Implies, And, Or, Not]], g
     solved = []
 
     while True:
-        print(solved)
         # Step 1: If all goals are solved, return YES
+        print(solved)
         if all(goal in solved for goal in goals):
             return "YES"
 
@@ -59,10 +60,26 @@ def sld_resolution(knowledge_base: List[Union[Symbol, Implies, And, Or, Not]], g
                 pass
             elif isinstance(clause, Or):
                 # Handle OR clauses (if needed)
-                if is_solved(solved, clause.op1) and isinstance(clause.op2, Symbol) and clause.op2 not in solved:
-                    solved.append(clause.op2)
-                    found_clause = True
-                    break
+                found_solved = False
+                pos = None
+                for op in clause.operands:
+                    if not isinstance(op, Not):
+                        pos = clause
+                    else:
+                        if op.expr not in solved:
+                            break
+                    found_solved = True
+
+                if found_solved and pos is not None:
+                    solved.append(pos)
+                else:
+                    continue
+
+
+                # if is_solved(solved, clause.op1) and isinstance(clause.op2, Symbol) and clause.op2 not in solved:
+                #     solved.append(clause.op2)
+                #     found_clause = True
+                #     break
             elif isinstance(clause, Symbol):
                 # Handle atomic symbols
                 if clause not in solved:
@@ -75,31 +92,39 @@ def sld_resolution(knowledge_base: List[Union[Symbol, Implies, And, Or, Not]], g
             return "NO"
 
 if __name__ == "__main__":
-    first_grade = Symbol("FirstGrade")
-    child = Symbol("Child")
-    male = Symbol("Male")
-    boy = Symbol("Boy")
-    kindergarten = Symbol("Kindergarten")
-    female = Symbol("Female")
-    girl = Symbol("Girl")
+    knowledge_base = list(parse("tc1.cnf")[0])
 
-    # Define knowledge base
-    knowledge_base = [
-        first_grade,
-        Implies(first_grade, child),
-        Implies(And(child, male), boy),
-        Implies(kindergarten, child),
-        Implies(And(child, female), girl),
-        female
-    ]
+    goals = [Symbol("4")]
+
+    # first_grade = Symbol("FirstGrade")
+    # child = Symbol("Child")
+    # male = Symbol("Male")
+    # boy = Symbol("Boy")
+    # kindergarten = Symbol("Kindergarten")
+    # female = Symbol("Female")
+    # girl = Symbol("Girl")
+    #
+    # # Define knowledge base
+    # knowledge_base = [
+    #     first_grade,
+    #     Implies(first_grade, child),
+    #     Implies(And(child, male), boy),
+    #     Implies(kindergarten, child),
+    #     Implies(And(child, female), girl),
+    #     female
+    # ]
 
     # Define goals
-    goals = [girl]
+    # goals = [girl]
 
     for i, rule in enumerate(knowledge_base):
         if isinstance(rule, Implies):
             knowledge_base[i] = rule.to_cnf()
-    print(knowledge_base)
+    for k in knowledge_base:
+        print(k)
+    # print("ZCCZCZC")
+    # for k in knowledge_base:
+    #     print(k)
     # Perform SLD resolution
     result = sld_resolution(knowledge_base, goals)
     print("Result:", result)  # Output: "YES" or "NO"
