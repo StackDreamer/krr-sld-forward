@@ -1,4 +1,4 @@
-from model import Symbol, Or, Not
+from hadeh import Symbol, Or, Not
 
 def build_disjunction(op1: Symbol, op2: set[Symbol] | Symbol) -> Or:
 
@@ -37,5 +37,3 @@ def parse(file_name: str) -> tuple[set, set]:
             knowledge_base.add(build_disjunction(symbols.pop(), symbols))
 
     return knowledge_base, all_symbols
-
-print(parse("flat30-1.cnf"))
