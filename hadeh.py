@@ -193,6 +193,10 @@ def is_cnf(expr: Expr) -> bool:
 def is_literal(expr: Expr) -> bool:
     return isinstance(expr, Symbol) or (isinstance(expr, Not) and isinstance(expr.expr, Symbol))
 
+def convert_to_cnf(expr: Expr) -> Expr:
+    while not is_cnf(expr):
+        expr = expr.to_cnf()
+    return expr
 
 if __name__ == "__main__":
     A = Symbol("A")
@@ -202,10 +206,5 @@ if __name__ == "__main__":
     E = Symbol("E")
 
     expr = Iff(A, Implies(Or(And(B, Or(D, And(B, Or(C, Or(A, B))))), E), Not(C)))
-    print("Original:", expr)
-    i = 0
-    while not is_cnf(expr):
-        expr = expr.to_cnf()
-        print("CNF:", expr)
-        i += 1
-    print(i)
+    expr = convert_to_cnf(expr)
+    print(expr)
