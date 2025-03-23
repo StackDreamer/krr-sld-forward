@@ -192,6 +192,5 @@ for i, rule in enumerate(knowledge_base):
     if isinstance(rule, Implies):
         knowledge_base[i] = rule.to_cnf()
 print(knowledge_base)
-# Perform SLD resolution
 result = sld_resolution(knowledge_base, goals)
-print("Result:", result)  # Output: "YES" or "NO"
+print("Result:", result)
